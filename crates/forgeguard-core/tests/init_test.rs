@@ -784,6 +784,70 @@ fn global_hermes_and_openclaw_use_their_native_skill_directories() {
 }
 
 #[test]
+fn installs_global_omp_skill_into_agents_skills() {
+    let directory = tempdir().expect("temp directory");
+
+    let report = forgeguard_core::initialize_global(
+        directory.path(),
+        &InitOptions {
+            force: false,
+            refresh: false,
+            agents: vec![AgentTarget::Omp],
+        },
+    )
+    .expect("install global omp skill");
+
+    assert_eq!(report.agents, vec![AgentTarget::Omp]);
+    assert!(directory
+        .path()
+        .join(".agents/skills/forgeguard-engineering/SKILL.md")
+        .is_file());
+    assert!(!directory.path().join("AGENTS.md").exists());
+}
+
+#[test]
+fn installs_project_omp_skill_and_agents_md() {
+    let directory = tempdir().expect("temp directory");
+    fs::write(
+        directory.path().join("Cargo.toml"),
+        "[package]\nname = \"sample\"\nversion = \"0.1.0\"\n",
+    )
+    .expect("write manifest");
+
+    let report = initialize_project(
+        directory.path(),
+        &InitOptions {
+            force: false,
+            refresh: false,
+            agents: vec![AgentTarget::Omp],
+        },
+    )
+    .expect("install project omp");
+
+    assert_eq!(report.agents, vec![AgentTarget::Omp]);
+    assert!(directory.path().join("AGENTS.md").is_file());
+    assert!(directory
+        .path()
+        .join(".agents/skills/forgeguard-engineering/SKILL.md")
+        .is_file());
+}
+
+#[test]
+fn detects_omp_configuration_in_project_and_global_scope() {
+    let directory = tempdir().expect("temp directory");
+    fs::create_dir_all(directory.path().join(".omp")).expect("create .omp");
+
+    assert_eq!(
+        detect_installed_agents(directory.path(), false),
+        vec![AgentTarget::Omp]
+    );
+    assert_eq!(
+        detect_installed_agents(directory.path(), true),
+        vec![AgentTarget::Omp]
+    );
+}
+
+#[test]
 fn agents_md_only_targets_write_no_extra_directories() {
     let directory = tempdir().expect("temp directory");
     fs::write(
