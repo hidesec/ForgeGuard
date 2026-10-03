@@ -1008,12 +1008,8 @@ fn skill_directory(harness: Harness, scope: InstallScope) -> Result<String> {
         InstallScope::Project => Scope::Project,
         InstallScope::Global => Scope::User,
     };
-    let directory = if harness == Harness::Omp {
-        Some(".agents/skills")
-    } else {
-        skills_dir(harness, scope)
-    }
-    .with_context(|| format!("{harness} documents no skill directory"))?;
+    let directory = skills_dir(harness, scope)
+        .with_context(|| format!("{harness} documents no skill directory"))?;
     Ok(format!("{directory}/{SKILL_NAME}"))
 }
 
