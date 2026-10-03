@@ -43,6 +43,21 @@ All notable changes to ForgeGuard will be documented here by Release Please.
 
 * **ci:** consolidate changelog to root and fix fold script ([9621e26](https://github.com/suiflex/ForgeGuard/commit/9621e2690209744b4caab86299479f5c4d7db8c7))
 
+## [0.20.0](https://github.com/suiflex/ForgeGuard/compare/v0.19.0...v0.20.0) (2026-10-03)
+
+
+### Features
+
+* **init:** add omp agent target ([6b8f8d1](https://github.com/suiflex/ForgeGuard/commit/6b8f8d16565ba210567a393952e8a0f8dcbc9833))
+* **init:** add omp agent target ([2060960](https://github.com/suiflex/ForgeGuard/commit/206096016ca06591265aca7b18fc7aa367dd3e3b)), closes [#107](https://github.com/suiflex/ForgeGuard/issues/107)
+
+
+### Bug Fixes
+
+* **cli:** clarify agent selection controls ([32943bc](https://github.com/suiflex/ForgeGuard/commit/32943bc2bf6401fad4ea3eaab3227099e1e04ed2))
+* **cli:** clarify agent selection controls ([b60e3c4](https://github.com/suiflex/ForgeGuard/commit/b60e3c441529bb2e7bc42e46a06e60d8ee675b0a))
+* **init:** use Kurir OMP skill mapping ([3e10841](https://github.com/suiflex/ForgeGuard/commit/3e108411bf1db3bf6e0487c8cbe72b5b4509ca2a))
+
 ## [0.19.0](https://github.com/suiflex/ForgeGuard/compare/v0.18.0...v0.19.0) (2026-09-22)
 
 
