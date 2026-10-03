@@ -94,7 +94,7 @@ transcript="${temporary_directory}/transcript"
 strip_ansi < "$transcript" > "${transcript}.plain"
 
 assert_contains() {
-    if ! grep -qF "$2" "${transcript}.plain"; then
+    if ! grep -qF -e "$2" "${transcript}.plain"; then
         echo "error: expected to find: $2" >&2
         cat "${transcript}.plain" >&2
         exit 1
@@ -115,6 +115,12 @@ assert_contains "detection step" "claude, cursor"
 # Rows carry what each target installs, not just a bare name.
 assert_contains "menu summary" "CLAUDE.md, own skill, Stop hook"
 assert_contains "AGENTS.md-only row" "AGENTS.md only"
+# Controls distinguish movement from selection and explain the explicit CLI path.
+assert_contains "picker navigation and selection help" "move the highlight; Space toggles a checkbox; Enter confirms checked agents"
+assert_contains "picker selection status" "checked agents will be installed"
+assert_contains "explicit agent option" "forgeguard init --agent <name>"
+assert_contains "OpenCode example" "--agent opencode"
+
 # Detected agents arrive pre-checked, everything else unchecked.
 assert_contains "claude preselected" "◼ claude"
 assert_contains "cursor preselected" "◼ cursor"
@@ -248,6 +254,54 @@ for expected in "nothing selected" "pick at least one" "no agent selected"; do
         exit 1
     fi
 done
+# With no detected configuration, moving to OpenCode and pressing Space must
+# select it; Enter then installs only that checked agent.
+space_selected="${temporary_directory}/space-selected"
+mkdir -p "$space_selected"
+git -C "$space_selected" init -q
+{
+    sleep 0.6; printf '\r'
+    sleep 0.6; printf '\033[B'
+    sleep 0.2; printf '\033[B'
+    sleep 0.2; printf '\033[B'
+    sleep 0.2; printf ' '
+    sleep 0.3; printf '\r'
+    sleep 0.6; printf '\r'
+    sleep 0.6; printf '\r'
+    sleep 0.6; printf '\r'
+    sleep 0.6; printf '\r'
+    sleep 2
+} | run_on_pty "$binary" --root "$space_selected" init > "${temporary_directory}/space-out" 2>&1 || true
+strip_ansi < "${temporary_directory}/space-out" > "${temporary_directory}/space-plain"
+if ! grep -qF "no agent configuration found; nothing is pre-selected" "${temporary_directory}/space-plain"; then
+    echo "error: empty-detection picker never showed its selection state" >&2
+    cat "${temporary_directory}/space-plain" >&2
+    exit 1
+fi
+if grep -qF "nothing selected" "${temporary_directory}/space-plain"; then
+    echo "error: pressing Space did not select OpenCode" >&2
+    cat "${temporary_directory}/space-plain" >&2
+    exit 1
+fi
+test -f "$space_selected/AGENTS.md" || {
+    echo "error: Space did not select OpenCode for installation" >&2
+    cat "${temporary_directory}/space-plain" >&2
+    exit 1
+}
+test ! -f "$space_selected/CLAUDE.md" || {
+    echo "error: Space-selected OpenCode run installed another agent" >&2
+    exit 1
+}
+
+# An explicit OpenCode target bypasses the interactive picker.
+explicit_opencode="${temporary_directory}/explicit-opencode"
+mkdir -p "$explicit_opencode"
+git -C "$explicit_opencode" init -q
+"$binary" --root "$explicit_opencode" init --agent opencode > /dev/null 2>&1
+test -f "$explicit_opencode/AGENTS.md" || {
+    echo "error: --agent opencode did not install OpenCode configuration" >&2
+    exit 1
+}
 
 # The flags answer the same questions without a terminal, and a run without them
 # keeps the old behaviour: install only.

@@ -1691,8 +1691,22 @@ fn run_init_wizard(
     } else {
         root.to_path_buf()
     };
-
     let detected = detect_installed_agents(&detect_root, use_global);
+
+    println!(
+        "{}",
+        theme::point(
+            "Picker: ↑/↓ move the highlight; Space toggles a checkbox; Enter confirms checked agents.",
+            theme::ACCENT,
+        )
+    );
+    println!(
+        "{}",
+        theme::point(
+            "Skip the picker with `forgeguard init --agent <name>` (for example, `--agent opencode`).",
+            theme::ACCENT,
+        )
+    );
     let found = agent_names(&detected);
     println!(
         "\n{}\n",
@@ -1792,7 +1806,7 @@ fn prompt_for_agents(detected: &[AgentTarget]) -> Result<Vec<AgentTarget>> {
         .map(|(index, _)| index)
         .collect();
 
-    let help = "↑↓ move · space toggle · → all · ← none · enter confirm";
+    let help = "↑↓ navigate · Space toggles checked state · → all · ← none · Enter confirms";
     for attempt in 0..2 {
         // Each row carries its summary, which makes a useful menu but a wrapped
         // mess once echoed back as the answer. Echo the names alone.
@@ -1803,18 +1817,21 @@ fn prompt_for_agents(detected: &[AgentTarget]) -> Result<Vec<AgentTarget>> {
                 .collect::<Vec<_>>()
                 .join(", ")
         };
-        let picked = inquire::MultiSelect::new("Which agents?", rows.clone())
-            .with_default(&defaults)
-            .with_page_size(AGENT_MENU.len())
-            .with_formatter(formatter)
-            .with_render_config(theme::render_config())
-            .with_help_message(if attempt == 0 {
-                help
-            } else {
-                "nothing selected — pick at least one, or press Esc to cancel"
-            })
-            .prompt()
-            .context("init wizard cancelled")?;
+        let picked = inquire::MultiSelect::new(
+            "Select agents (checked agents will be installed)",
+            rows.clone(),
+        )
+        .with_default(&defaults)
+        .with_page_size(AGENT_MENU.len())
+        .with_formatter(formatter)
+        .with_render_config(theme::render_config())
+        .with_help_message(if attempt == 0 {
+            help
+        } else {
+            "nothing selected — pick at least one, or press Esc to cancel"
+        })
+        .prompt()
+        .context("init wizard cancelled")?;
         let agents = agents_from_rows(&picked);
         if !agents.is_empty() {
             return Ok(agents);
