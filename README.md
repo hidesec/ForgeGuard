@@ -373,10 +373,11 @@ first use and refresh an existing one from the Git diff before answering.
 
 `forgeguard init` decides which integrations to write in one of three ways:
 
-1. **Explicit `--agent`** always wins and is never second-guessed. It accepts a
+1. **Explicit `--agent`** always wins and skips the picker. It accepts a
    comma-separated list or a repeated flag, plus the `all` shortcut:
 
    ```bash
+   forgeguard init --agent opencode
    forgeguard init --agent claude
    forgeguard init --agent claude,codex
    forgeguard init --agent all
@@ -385,6 +386,9 @@ first use and refresh an existing one from the Git diff before answering.
 2. **A terminal with no `--agent`** opens the interactive picker. It lists what each
    target writes, pre-checks the agents already configured in the directory, and
    treats an empty selection as "install nothing" rather than "install everything".
+   Arrow keys move the highlight without changing selection; press **Space** to
+   toggle an agent's checkbox, then **Enter** to install the checked agents. The
+   checkboxes show the current selection.
 
 3. **No terminal and no `--agent`** — a script, CI job, or another agent shelling out —
    installs only for the agents whose own configuration is already present.
