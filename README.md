@@ -432,6 +432,7 @@ what was installed.
 | OpenCode | `opencode` | `AGENTS.md` | `.agents/skills` | Policy-enforced gate |
 | Hermes | `hermes` | `AGENTS.md` | `.agents/skills` | Policy-enforced gate |
 | OpenClaw | `openclaw` | `AGENTS.md` | `.agents/skills` | `before_agent_finalize` plugin hook |
+| omp | `omp` | `AGENTS.md` | `.agents/skills` | Policy-enforced gate |
 | Windsurf / Devin | `windsurf` | `AGENTS.md` | — | Policy-enforced gate |
 | GitHub Copilot | `copilot` | `AGENTS.md` | — | Policy-enforced gate |
 | Cline | `cline` | `AGENTS.md` | — | Policy-enforced gate |
@@ -452,6 +453,7 @@ enabled native plugin under `~/.openclaw/extensions/forgeguard/`; it restores ta
 before each prompt and runs the completion gate through `before_agent_finalize`. Restart the
 OpenClaw gateway after installation. Hermes' completion hooks are observers, so its global
 integration remains policy-enforced rather than claiming a blocking hook.
+omp natively discovers `~/.agents/skills/` and `.agents/skills/` with its default configuration (`skills.enableAgentsUser` and `skills.enableAgentsProject`), so `init --global` and repository `init` write the engineering skill there without mutating user configuration; its integration is policy-enforced via the skill and `AGENTS.md`.
 
 [OpenCode officially discovers](https://opencode.ai/docs/skills) both `AGENTS.md` and `.agents/skills`. Its current plugin lifecycle exposes `session.idle` only after the agent loop stops, so ForgeGuard does not claim a reliable blocking `Stop` hook there. The compact policy requires `forgeguard gate --changed --output compact` before completion. [Antigravity provides a native blocking `Stop` protocol](https://antigravity.google/docs/hooks), so failures automatically return the agent to its execution loop.
 

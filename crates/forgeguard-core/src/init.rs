@@ -129,6 +129,7 @@ pub enum AgentTarget {
     OpenCode,
     Hermes,
     OpenClaw,
+    Omp,
     Antigravity,
     Windsurf,
     Copilot,
@@ -208,6 +209,7 @@ const ALL_AGENT_TARGETS: &[AgentTarget] = &[
     AgentTarget::OpenCode,
     AgentTarget::Hermes,
     AgentTarget::OpenClaw,
+    AgentTarget::Omp,
     AgentTarget::Antigravity,
     AgentTarget::Windsurf,
     AgentTarget::Copilot,
@@ -231,6 +233,7 @@ const PROJECT_AGENT_MARKERS: &[(AgentTarget, &[&str])] = &[
     (AgentTarget::OpenCode, &[".opencode", "opencode.json"]),
     (AgentTarget::Hermes, &[".hermes"]),
     (AgentTarget::OpenClaw, &[".openclaw", "openclaw.json"]),
+    (AgentTarget::Omp, &[".omp"]),
     (
         AgentTarget::Antigravity,
         &[".agents/rules", ".agents/hooks.json", ".agent/rules"],
@@ -258,6 +261,7 @@ const GLOBAL_AGENT_MARKERS: &[(AgentTarget, &[&str])] = &[
     (AgentTarget::OpenCode, &[".config/opencode"]),
     (AgentTarget::Hermes, &[".hermes"]),
     (AgentTarget::OpenClaw, &[".openclaw"]),
+    (AgentTarget::Omp, &[".omp"]),
     (AgentTarget::Antigravity, &[".gemini"]),
     (AgentTarget::Windsurf, &[".codeium/windsurf", ".devin"]),
     (AgentTarget::Roo, &[".roo"]),
@@ -365,7 +369,9 @@ fn install_agents(
             AgentTarget::Claude => install_claude(root, scope, overwrite, log)?,
             AgentTarget::Cursor => install_cursor(root, scope, overwrite, log)?,
             AgentTarget::OpenCode => install_opencode(root, scope, overwrite, log)?,
-            AgentTarget::Hermes => install_shared_skill_agent(root, target, scope, overwrite, log)?,
+            AgentTarget::Hermes | AgentTarget::Omp => {
+                install_shared_skill_agent(root, target, scope, overwrite, log)?
+            }
             AgentTarget::OpenClaw => install_openclaw(root, scope, overwrite, log)?,
             AgentTarget::Antigravity => install_antigravity(root, scope, overwrite, log)?,
             AgentTarget::Windsurf
@@ -428,6 +434,7 @@ fn ignore_project_agent_directories(
                 | AgentTarget::OpenCode
                 | AgentTarget::Hermes
                 | AgentTarget::OpenClaw
+                | AgentTarget::Omp
                 | AgentTarget::Antigravity
         )
     }) {
@@ -641,7 +648,8 @@ fn install_shared_skill_agent(
     let harness = match target {
         AgentTarget::Hermes => Harness::Hermes,
         AgentTarget::OpenClaw => Harness::OpenClaw,
-        _ => unreachable!("only Hermes and OpenClaw use this installer"),
+        AgentTarget::Omp => Harness::Omp,
+        _ => unreachable!("only Hermes, OpenClaw, and Omp use this installer"),
     };
     if matches!(scope, InstallScope::Project) {
         write_file(

@@ -347,6 +347,7 @@ enum AgentArg {
     Hermes,
     #[value(name = "openclaw")]
     OpenClaw,
+    Omp,
     Antigravity,
     Windsurf,
     Copilot,
@@ -1552,6 +1553,7 @@ impl From<AgentArg> for AgentTarget {
             AgentArg::OpenCode => Self::OpenCode,
             AgentArg::Hermes => Self::Hermes,
             AgentArg::OpenClaw => Self::OpenClaw,
+            AgentArg::Omp => Self::Omp,
             AgentArg::Antigravity => Self::Antigravity,
             AgentArg::Windsurf => Self::Windsurf,
             AgentArg::Copilot => Self::Copilot,
@@ -1593,6 +1595,7 @@ const AGENT_MENU: &[(&str, AgentTarget)] = &[
     ("opencode", AgentTarget::OpenCode),
     ("hermes", AgentTarget::Hermes),
     ("openclaw", AgentTarget::OpenClaw),
+    ("omp", AgentTarget::Omp),
     ("antigravity", AgentTarget::Antigravity),
     ("windsurf", AgentTarget::Windsurf),
     ("copilot", AgentTarget::Copilot),
@@ -1609,6 +1612,7 @@ const AGENT_SUMMARY: &[(&str, &str)] = &[
     ("opencode", "AGENTS.md, shared skill"),
     ("hermes", "AGENTS.md, native skill"),
     ("openclaw", "AGENTS.md, native skill"),
+    ("omp", "AGENTS.md, shared skill"),
     ("antigravity", ".agents/rules, shared skill, Stop hook"),
     ("windsurf", "AGENTS.md only"),
     ("copilot", "AGENTS.md only"),
@@ -2364,7 +2368,7 @@ mod tests {
     #[test]
     fn menu_rows_round_trip_back_to_targets() {
         let rows = agent_menu_rows();
-        let picked = vec![rows[1].clone(), rows[8].clone()];
+        let picked = vec![rows[1].clone(), rows[9].clone()];
 
         assert_eq!(
             agents_from_rows(&picked),
